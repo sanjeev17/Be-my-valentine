@@ -18,6 +18,18 @@
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="/og-image.png" />
+
+    <script>
+      (function () {
+        var params = new URLSearchParams(window.location.search);
+        var redirect = params.get("redirect");
+        if (redirect) {
+          var base = "/Be-my-valentine";
+          var target = base + redirect;
+          window.history.replaceState(null, "", target);
+        }
+      })();
+    </script>
   </head>
 
   <body>

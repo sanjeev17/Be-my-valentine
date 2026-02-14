@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Be My Valentine?</title>
+    <script>
+      (function () {
+        var base = "/Be-my-valentine/";
+        var path = window.location.pathname;
+        var query = window.location.search || "";
+        var hash = window.location.hash || "";
+        if (path.indexOf(base) !== 0) {
+          path = base;
+        }
+        var redirectTo = base + "?" + "redirect=" + encodeURIComponent(path.replace(base, "/") + query + hash);
+        window.location.replace(redirectTo);
+      })();
+    </script>
+  </head>
+  <body></body>
+</html>
