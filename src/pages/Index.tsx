@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import cuteBears from "@/assets/cute-bears.png";
+import bouquetImage from "@/assets/bouquet.svg";
 
 const BUTTON_SIZE = 120;
 const ESCAPE_RADIUS = 160;
@@ -38,6 +39,7 @@ const Index = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [noPos, setNoPos] = useState<{ x: number; y: number } | null>(null);
   const [yesHover, setYesHover] = useState(false);
+  const [showBouquet, setShowBouquet] = useState(false);
   const [chasing, setChasing] = useState(false);
   const [messageIndex, setMessageIndex] = useState(0);
   const [cursorNearNo, setCursorNearNo] = useState(false);
@@ -94,6 +96,15 @@ const Index = () => {
     return () => window.removeEventListener("mousemove", handler);
   }, [escapeButton]);
 
+  const handleYesClick = () => {
+    if (showBouquet) return;
+    setShowBouquet(true);
+  };
+
+  const handleBouquetContinue = () => {
+    navigate("/yes");
+  };
+
   useEffect(() => {
     const handler = (e: TouchEvent) => {
       const t = e.touches[0];
@@ -115,6 +126,43 @@ const Index = () => {
         background: "linear-gradient(180deg, hsl(350 100% 97%) 0%, hsl(340 60% 92%) 50%, hsl(346 70% 88%) 100%)",
       }}
     >
+      {/* Bouquet overlay before navigating */}
+      {showBouquet && (
+        <div
+          className="fixed inset-0 z-40 flex items-center justify-center bg-gradient-to-b from-rose-100/90 via-pink-100/80 to-rose-200/90 backdrop-blur-sm"
+          onClick={handleBouquetContinue}
+          role="button"
+          tabIndex={0}
+        >
+          <div className="absolute inset-0 proposal-glow" />
+          <div className="relative z-10 flex flex-col items-center gap-4 px-6 text-center">
+            <div className="text-[9.5rem] sm:text-[11rem] md:text-[13rem] animate-bouquet-pop drop-shadow-xl">💐</div>
+            <p
+              className="text-2xl sm:text-3xl font-semibold text-primary drop-shadow-sm"
+              style={{ fontFamily: "var(--font-body)" }}
+            >
+              ye lo apna guldasta 😊
+            </p>
+            <p className="text-sm text-muted-foreground">(tap anywhere to continue)</p>
+          </div>
+          <div className="absolute inset-0 pointer-events-none">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <span
+                key={i}
+                className="absolute animate-sparkle-flicker text-primary"
+                style={{
+                  left: `${8 + (i % 5) * 18}%`,
+                  top: `${12 + Math.floor(i / 5) * 40}%`,
+                  animationDelay: `${i * 0.2}s`,
+                }}
+              >
+                ♥
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Floating hearts - memoized so they don't re-render */}
       {hearts.map((h, i) => (
         <FloatingHeart key={i} {...h} />
@@ -137,21 +185,23 @@ const Index = () => {
         className="text-xl sm:text-2xl md:text-3xl text-foreground text-center px-6 mb-10 font-semibold"
         style={{ fontFamily: "var(--font-body)" }}
       >
-        will you be my Valentine? 💌
+        will you be my Valentine? 💌😊
       </p>
 
-      <div className="flex gap-6 items-center relative" style={{ minHeight: 80 }}>
-        <button
-          onClick={() => navigate("/yes")}
+      {!showBouquet && (
+        <div className="flex gap-6 items-center relative" style={{ minHeight: 80 }}>
+          <button
+          onClick={handleYesClick}
           onMouseEnter={() => setYesHover(true)}
           onMouseLeave={() => setYesHover(false)}
-          className="px-10 py-4 rounded-full bg-primary text-primary-foreground font-bold text-lg sm:text-xl shadow-lg hover:shadow-2xl transition-all duration-500 ease-out animate-pulse-heart hover:scale-110"
+          className="px-10 py-4 rounded-full bg-primary text-primary-foreground font-bold text-lg sm:text-xl shadow-lg hover:shadow-2xl transition-all duration-500 ease-out animate-pulse-heart hover:scale-110 disabled:cursor-not-allowed disabled:opacity-80"
           style={{ fontFamily: "var(--font-body)" }}
+          disabled={showBouquet}
         >
           Yes {yesHover ? "🥰" : "❤️"}
         </button>
 
-        <button
+          <button
           ref={noButtonRef}
           className="px-8 py-4 rounded-full bg-muted text-muted-foreground font-bold text-lg sm:text-xl shadow"
           style={{
@@ -169,8 +219,9 @@ const Index = () => {
           onClick={(e) => e.preventDefault()}
         >
           No 😒
-        </button>
-      </div>
+          </button>
+        </div>
+      )}
 
       {/* Changing chase messages - smooth fade */}
       <div className="h-12 mt-6 flex items-center justify-center">
